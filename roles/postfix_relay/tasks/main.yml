@@ -1,0 +1,37 @@
+---
+- name: Install MTA and SASL packages
+  ansible.builtin.dnf:
+    name: "{{ postfix_packages }}"
+    state: present
+
+- name: Ensure Postfix is enabled and started
+  ansible.builtin.service:
+    name: postfix
+    state: started
+    enabled: true
+
+- name: Deploy main.cf
+  ansible.builtin.template:
+    src: main.cf.j2
+    dest: /etc/postfix/main.cf
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart postfix
+
+- name: Deploy sasl_passwd
+  ansible.builtin.template:
+    src: sasl_passwd.j2
+    dest: /etc/postfix/sasl_passwd
+    owner: root
+    group: root
+    mode: "0600"
+  notify: Postmap sasl_passwd
+
+- name: Open firewall for SMTP (port 25)
+  ansible.posix.firewalld:
+    service: smtp
+    permanent: true
+    state: enabled
+    immediate: true
+  when: ansible_facts['os_family'] == "RedHat"

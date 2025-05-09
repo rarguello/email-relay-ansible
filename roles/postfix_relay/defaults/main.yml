@@ -1,0 +1,21 @@
+postfix_relay_hostname:      "relay01.int.example"
+
+# Appliance(s) allowed to send mail in the clear
+postfix_relay_mynetworks:
+  - "127.0.0.0/8"
+  - "10.10.20.15"
+
+# Provider (smarthost) parameters
+postfix_smarthost:          "smtp.mail.cloud.local"
+postfix_smarthost_port:     25          # 25, 587 (STARTTLS) or 465 (implicit TLS)
+postfix_smarthost_user:     "customer-123"
+postfix_smarthost_pass:     "S3cr3t!"   # **Use Ansible Vault in real life**
+
+# TLS behaviour: "encrypt" = require STARTTLS, "may" = opportunistic
+postfix_tls_security_level: "encrypt"
+
+# Packages (override if you prefer exim/sendmail)
+postfix_packages:
+  - postfix
+  - cyrus-sasl
+  - cyrus-sasl-plain

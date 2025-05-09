@@ -1,0 +1,29 @@
+# Managed by Ansible - DO NOT EDIT
+
+# Identity
+myhostname = {{ postfix_relay_hostname }}
+myorigin   = $myhostname
+
+# Listen on every interface
+inet_interfaces = all
+
+# Only accept unauthenticated mail from server1 (+ localhost)
+mynetworks = {{ postfix_relay_mynetworks | join(", ") }}
+
+# Forward everything to the cloud provider
+relayhost  = [{{ postfix_smarthost }}]:{{ postfix_smarthost_port }}
+
+# TLS *outbound* (client side)
+smtp_tls_security_level = {{ postfix_tls_security_level }}
+smtp_tls_CAfile = /etc/ssl/certs/ca-bundle.crt
+smtp_tls_session_cache_database = btree:${data_directory}/smtp_scache
+smtp_tls_loglevel = 1
+
+# SMTP AUTH (client side)
+smtp_sasl_auth_enable = yes
+smtp_sasl_password_maps = hash:/etc/postfix/sasl_passwd
+smtp_sasl_security_options = noanonymous
+smtp_sasl_mechanism_filter = plain, login
+
+# Hard stop for non-authorized clients
+smtpd_client_restrictions = permit_mynetworks, reject

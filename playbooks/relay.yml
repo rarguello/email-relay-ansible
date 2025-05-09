@@ -1,0 +1,6 @@
+---
+- name: Configure Oracle Linux relay
+  hosts: relay
+  become: true
+  roles:
+    - postfix_relay

@@ -1,0 +1,11 @@
+galaxy_info:
+  author: Ricardo Arguello
+  description: Configures a Postfix SMTP relay (smarthost).
+  license: MIT (or your preferred license)
+  min_ansible_version: 2.9
+  platforms:
+    - name: EL
+      versions:
+        - 8
+        - 9
+dependencies: []
