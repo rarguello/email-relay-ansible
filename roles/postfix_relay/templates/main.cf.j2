@@ -6,16 +6,21 @@ myorigin   = $myhostname
 
 # Listen on every interface
 inet_interfaces = all
+inet_protocols = ipv4
 
 # Only accept unauthenticated mail from server1 (+ localhost)
 mynetworks = {{ postfix_relay_mynetworks | join(", ") }}
 
 # Forward everything to the cloud provider
-relayhost  = [{{ postfix_smarthost }}]:{{ postfix_smarthost_port }}
+relayhost = [{{ postfix_smarthost }}]:{{ postfix_smarthost_port }}
+
+{% if postfix_smarthost_tls_mode == 'wrapper' %}
+smtp_tls_wrappermode = yes
+{% endif %}
 
 # TLS *outbound* (client side)
 smtp_tls_security_level = {{ postfix_tls_security_level }}
-smtp_tls_CAfile = /etc/ssl/certs/ca-bundle.crt
+smtp_tls_CAfile = {{ postfix_smarthost_ca_file }}
 smtp_tls_session_cache_database = btree:${data_directory}/smtp_scache
 smtp_tls_loglevel = 1
 
@@ -26,4 +31,5 @@ smtp_sasl_security_options = noanonymous
 smtp_sasl_mechanism_filter = plain, login
 
 # Hard stop for non-authorized clients
-smtpd_client_restrictions = permit_mynetworks, reject
+smtpd_client_restrictions    = permit_mynetworks, reject
+smtpd_recipient_restrictions = permit_mynetworks, reject_unauth_destination
