@@ -14,13 +14,34 @@ mynetworks = {{ postfix_relay_mynetworks | join(", ") }}
 # Forward everything to the cloud provider
 relayhost = [{{ postfix_smarthost }}]:{{ postfix_smarthost_port }}
 
-{% if postfix_smarthost_tls_mode == 'wrapper' %}
+{% if postfix_smarthost_port == 465 %}
 smtp_tls_wrappermode = yes
+# For SMTPS (wrappermode), security level is implicitly 'encrypt'.
+smtp_tls_security_level = encrypt
+{% else %}
+# For STARTTLS (ports 25, 587)
+smtp_tls_wrappermode = no
+smtp_tls_security_level = {{ postfix_tls_security_level }}
 {% endif %}
 
 # TLS *outbound* (client side)
-smtp_tls_security_level = {{ postfix_tls_security_level }}
+# TLS CA and verification settings
+{% if (postfix_smarthost_port == 465) or (postfix_tls_security_level != 'none') %}
+  {% if postfix_smarthost_tls_skip_verify | bool %}
+# smtp_tls_CAfile is intentionally left unset to skip verification.
+# Postfix will attempt TLS but not verify the peer certificate.
+  {% else %}
+    {% if postfix_smarthost_custom_ca_file_path | length > 0 %}
+smtp_tls_CAfile = {{ postfix_smarthost_custom_ca_file_path }}
+    {% elif postfix_smarthost_ca_file | length > 0 %}
 smtp_tls_CAfile = {{ postfix_smarthost_ca_file }}
+    {% else %}
+# No specific CA file defined by user.
+# Postfix may use system defaults if verification is implied by security_level.
+    {% endif %}
+  {% endif %}
+{% endif %}
+
 smtp_tls_session_cache_database = btree:${data_directory}/smtp_scache
 smtp_tls_loglevel = 1
 

@@ -1,5 +1,5 @@
 ---
-- name: Configure Oracle Linux relay
+- name: Configure email relay
   hosts: relay
   become: true
   roles:

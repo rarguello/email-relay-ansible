@@ -28,6 +28,16 @@
     mode: "0600"
   notify: Postmap sasl_passwd
 
+- name: Deploy custom CA certificate for smarthost TLS verification
+  ansible.builtin.copy:
+    content: "{{ postfix_smarthost_custom_ca_content }}"
+    dest: "{{ postfix_smarthost_custom_ca_file_path }}"
+    owner: root
+    group: root
+    mode: "0644"
+  when: postfix_smarthost_custom_ca_content | length > 0 and postfix_smarthost_custom_ca_file_path | length > 0
+  notify: Restart postfix
+
 - name: Open firewall for SMTP (port 25)
   ansible.posix.firewalld:
     service: smtp

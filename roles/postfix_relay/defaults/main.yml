@@ -15,8 +15,18 @@ postfix_smarthost_pass:     "S3cr3t!"   # **Use Ansible Vault in real life**
 # TLS behaviour: "encrypt" = require STARTTLS, "may" = opportunistic
 postfix_tls_security_level: "encrypt"
 
-# Path to CA certificate bundle for verifying smarthost TLS certificate
+# Default CA bundle for smarthost TLS verification
 postfix_smarthost_ca_file: "/etc/ssl/certs/ca-bundle.crt"
+
+# Skip TLS verification for the smarthost connection
+postfix_smarthost_tls_skip_verify: false
+
+# Path on the relay server for a custom CA certificate for smarthost TLS verification
+postfix_smarthost_custom_ca_file_path: "" # e.g., "/etc/postfix/custom_smarthost_ca.crt"
+
+# Content of the custom CA certificate (PEM format) for smarthost TLS verification
+# If provided, this content will be deployed to postfix_smarthost_custom_ca_file_path
+postfix_smarthost_custom_ca_content: ""
 
 # Packages (override if you prefer exim/sendmail)
 postfix_packages:
